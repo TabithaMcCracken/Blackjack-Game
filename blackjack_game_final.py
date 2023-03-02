@@ -74,18 +74,6 @@ class Player:
         self.cards = []
         self.score = 0
 
-    def print_cards(self):
-        if self.isDealer == False:
-            print("Your Cards:")
-            for card in self.cards:
-                print(card)
-            
-        else:
-            print("\nDealer's Cards:")
-            print("The first card is hidden.")
-            for card in self.cards[1:]:
-                print(card)
-
     def calculate_score(self):
         score = 0
         for card in self.cards:
@@ -110,82 +98,105 @@ class Player:
 
         return self.score
 
-    def print_showing_score(self):
-        if self.isDealer == False:
-            print(f"\nYou're score: {self.calculate_score()}")
-        else:
-            showing_score = dealer.calculate_score() - dealer.cards[0].card_value # Can I put this into the line below?
-            print(f"\nDealer's showing score: {showing_score}")
-
-    def print_all_cards_and_scores(self):
-        for card in self.cards:
-            print(card)
-        print(f"{self.name}'s Score: {self.calculate_score()}")
-
     def get_card(self):
         dealt_card = random.choice(game_deck.deck)
         self.cards.append(dealt_card)
         game_deck.deck.remove(dealt_card)
 
+def print_cards(player):
+    if player.isDealer == False:
+        print("==Your Cards==")
+        for card in player.cards:
+            print(card)
+        
+    else:
+        print("\n==Dealer's Cards==")
+        print("The first card is hidden.")
+        for card in player.cards[1:]:
+            print(card)
+
+def print_showing_score(player):
+        if player.isDealer == False:
+            print(f"\nYou're score: {player.calculate_score()}")
+        else:
+            print(f"\nDealer's showing score: {player.calculate_score() - player.cards[0].card_value}\n")
+
+def print_all_cards_and_scores(player):
+    print(f"=={player.name}'s Cards==")
+    for card in player.cards:
+        print(card)
+    print(f"\n{player.name}'s Score: {player.calculate_score()}\n")
+
 def game_engine():
-# Evaluate if player or dealer has hit 21
+    # Players turn
     while True:
         if dealer.score == 21:
-            dealer.print_cards()
+            print_cards(dealer)
             print("The dealer has hit 21! You lose!")
             break
+        
+        if player.score <= 21:
+            print("It's your turn.")
+            player_response = input("Would you like to stay(S), hit(H), or fold(F)?")
 
-        player_response = input("Would you like to stay(S), hit(H), or fold(F)?")
-
-        if player_response == "F":
-            print("You have folded. Game Over")
-            break
-
-        if player_response == "H":
-            player.get_card()
-            player.print_cards()
-            player.calculate_score()
-            print(f"\nYour score: {player.score}")
-            
-            if player.score > 21:
-                print("You bust! Game Over!")
-                player.print_all_cards_and_scores()
-                dealer.print_all_cards_and_scores()
+            if player_response == "F":
+                print("You have folded. Game Over")
                 break
 
-        if player_response == "S":
-            print("You have decided to stay.")
-            
+            if player_response == "S":
+                print("You have decided to stay.")
+                time.sleep(1)
+                break
+
+            if player_response == "H":
+                print("Here is another card.")
+                time.sleep(1)
+                player.get_card()
+                print_cards(player)
+                player.calculate_score()
+                print(f"\nYour score: {player.score}")
+                
+                if player.score > 21:
+                    time.sleep(1)
+                    print("You bust! Game Over!")
+                    break
+
+    # Dealers turn
+    while True:
+        if player_response == "F" or player.score > 21:
+            break
         
-        print(" The dealer now plays.")
-        if dealer.score <= 16:
-            dealer.get_card()
-            dealer.print_cards()
-            dealer.print_showing_score()
+        if dealer.score >= 21:
+            print("The dealer busted! You win!")
+            break
         
         elif dealer.score >= 17 and dealer.score <= 21:
-            dealer.print_cards()
-            dealer.print_showing_score()
             print("The dealer stays!")
-
-        else:
-            print("The dealer busted! You win!")
-            dealer.print_all_cards_and_scores()
-            player.print_all_cards_and_scores()
             break
 
-            
-        print("We will now flip all cards over:")
-        player.print_all_cards_and_scores()
-        dealer.print_all_cards_and_scores()
+        elif dealer.score <= 16:
+            print("The dealer is taking another card.")
+            dealer.get_card()
+            print_cards(dealer)
+            print_showing_score(dealer)
+            time.sleep(2)
+        
+        else:
+            break
 
-        # Determine winner
-        if player.score > dealer.score and player.score <= 21:
-            print("You win!")
-        if dealer.score > player.score and dealer.score <=21:
-            print("The dealer wins!")
-        if dealer.score == player.score:
-            print("It's a tie!")
+    # Game results
+    time.sleep(1)
+    print("\nWe will now flip all cards over:")
+    print_all_cards_and_scores(player)
+    print_all_cards_and_scores(dealer)
+
+    # Determine winner
+    if player.score > dealer.score and player.score <= 21:
+        print("You win!")
+    if dealer.score > player.score and dealer.score <=21:
+        print("The dealer wins!")
+    if dealer.score == player.score:
+        print("It's a tie!")
 
 if __name__ == '__main__':
     # Setup    
@@ -210,17 +221,16 @@ if __name__ == '__main__':
     while len(dealer.cards) < 2:
         # Deal a card to the player, print cards and score
         player.get_card()
-        player.print_cards()
-        player.print_showing_score()
-
-        time.sleep(2)
 
         # Deal a card to the dealer, print cards and score
         dealer.get_card()    
-        dealer.print_cards()
-        dealer.print_showing_score()
 
-        time.sleep(2)
+    time.sleep(1)
+    print_cards(player)
+    print_showing_score(player)
+    time.sleep(1)
+    print_cards(dealer)
+    print_showing_score(dealer)
 
     game_engine()
 
