@@ -17,9 +17,14 @@ class Card:
 class Deck:
     def __init__(self) -> None:
         self.deck = []
-        suit_name = ['Clubs', 'Diamonds', 'Hearts', 'Spades']
+        suit_name = [
+            '\u2667', # Clubs
+            '\u2662', # Diamonds
+            '\u2661', #Hearts
+            '\u2664' #Spades
+        ]
         rank_name = [
-            'Ace',
+            'A',
             '2', 
             '3', 
             '4', 
@@ -29,12 +34,12 @@ class Deck:
             '8', 
             '9', 
             '10', 
-            'Jack', 
-            'Queen', 
-            'King'
+            'J', 
+            'Q', 
+            'K'
         ]
         card_value = {
-            'Ace':11, 
+            'A':11, 
             '2':2, 
             '3':3, 
             '4':4, 
@@ -44,9 +49,9 @@ class Deck:
             '8':8, 
             '9':9, 
             '10':10, 
-            'Jack':10, 
-            'Queen':10, 
-            'King':10
+            'J':10, 
+            'Q':10, 
+            'K':10
         } 
         # Ace starts as an 11 and is changed to a 1 if hand goes over 21
 
@@ -115,6 +120,52 @@ def print_cards(player):
         for card in player.cards[1:]:
             print(card)
 
+CARD_SLICES = [
+    " _________________",
+    "|                 |",
+    "|   {rank}            |",  # 2
+    "|                 |",
+    "|                 |",
+    "|                 |",
+    "|        {suit}        |",
+    "|                 |",
+    "|                 |",
+    "|                 |",
+    "|            {rank}   |",  # 9
+    "|_________________|",
+]
+
+HIDDEN_CARD_SLICES = [
+    " ________________",
+    "| !              |",
+    "|      * *       |",
+    "|    *     *     |",
+    "|          *     |",
+    "|         *      |",
+    "|       *        |",
+    "|       *        |",
+    "|                |",
+    "|                |",
+    "|       *     !  |",
+    "|________________|",
+]
+
+def print_cards_fancy(cards, hidden):
+    for card_slice, hidden_slice in zip(CARD_SLICES, HIDDEN_CARD_SLICES):
+        card_slices = "\t".join(
+            [
+                card_slice.format(rank = card.rank + (" " if len(card.rank) == 1 else ""), 
+                suit = card.suit + "") for card in cards
+            ]
+        )
+        if hidden:
+            if cards[0]:
+                print(f"\t{hidden_slice}\t")
+            else:
+                print(f"\t{card_slices}\t")
+        else:
+            print(f"\t{card_slices}\t{hidden_slice if hidden else ''}") # Still not sure what the second tab section is for
+            
 def print_showing_score(player):
         if player.isDealer == False:
             print(f"\nYou're score: {player.calculate_score()}")
@@ -214,7 +265,7 @@ if __name__ == '__main__':
 
     input("Press Enter to Continue")
 
-    print("We will now dealer 2 cards to each player.")
+    print("We will now deal 2 cards to each player.")
     time.sleep(2)
 
     # Deal 2 cards to player and dealer
@@ -226,10 +277,10 @@ if __name__ == '__main__':
         dealer.get_card()    
 
     time.sleep(1)
-    print_cards(player)
+    print_cards_fancy(player.cards, player.isDealer)
     print_showing_score(player)
     time.sleep(1)
-    print_cards(dealer)
+    print_cards_fancy(dealer.cards, dealer.isDealer)
     print_showing_score(dealer)
 
     game_engine()
