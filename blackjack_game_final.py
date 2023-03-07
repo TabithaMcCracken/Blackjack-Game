@@ -2,6 +2,7 @@
 # The dealer acts as a player and is required to hit on 16, stay on 17
 
 import random
+import os
 import time
 
 class Card:
@@ -150,46 +151,63 @@ HIDDEN_CARD_SLICES = [
     "|________________|",
 ]
 
-def print_cards_fancy(cards, hidden):
+def print_cards_fancy(player_hand):
+    print(f"=={player_hand.name}'s Cards==")
     for card_slice, hidden_slice in zip(CARD_SLICES, HIDDEN_CARD_SLICES):
-        card_slices = "\t".join(
-            [
-                card_slice.format(rank = card.rank + (" " if len(card.rank) == 1 else ""), 
-                suit = card.suit + "") for card in cards
-            ]
-        )
-        if hidden:
-            if cards[0]:
-                print(f"\t{hidden_slice}\t")
-            else:
-                print(f"\t{card_slices}\t")
+        if player_hand.isDealer:
+            card_slices = "\t".join(
+                [   
+                        card_slice.format(rank = card.rank + (" " if len(card.rank) == 1 else ""), 
+                        suit = card.suit + "") for card in player_hand.cards[1:]
+
+                ]
+            )
+            print(f"\t{hidden_slice}\t{card_slices}")
         else:
-            print(f"\t{card_slices}\t{hidden_slice if hidden else ''}") # Still not sure what the second tab section is for
+            card_slices = "\t".join(
+                [   
+                        card_slice.format(rank = card.rank + (" " if len(card.rank) == 1 else ""), 
+                        suit = card.suit + "") for card in player_hand.cards
+
+                ]
+            )
+            print(f"\t{card_slices}\t{hidden_slice if player_hand.isDealer else ''}") # Still not sure what the second tab section is for
             
 def print_showing_score(player):
         if player.isDealer == False:
-            print(f"\nYou're score: {player.calculate_score()}")
+            print(f"\n{player.name}'s Score: {player.calculate_score()}\n")
         else:
             print(f"\nDealer's showing score: {player.calculate_score() - player.cards[0].card_value}\n")
 
-def print_all_cards_and_scores(player):
-    print(f"=={player.name}'s Cards==")
-    for card in player.cards:
-        print(card)
-    print(f"\n{player.name}'s Score: {player.calculate_score()}\n")
+def print_all_cards_and_scores(player_hand):
+    print(f"=={player_hand.name}'s Cards==")
+    for card_slice, hidden_slice in zip(CARD_SLICES, HIDDEN_CARD_SLICES):
+        card_slices = "\t".join(
+            [   
+                card_slice.format(rank = card.rank + (" " if len(card.rank) == 1 else ""), 
+                suit = card.suit + "") for card in player_hand.cards
+
+            ]
+        )
+        print(f"\t{card_slices}\t")
+    print(f"\n{player_hand.name}'s Final Score: {player_hand.calculate_score()}\n")
+
+def clear():
+    os.system("clear")
 
 def game_engine():
     # Players turn
     while True:
         if dealer.score == 21:
-            print_cards(dealer)
             print("The dealer has hit 21! You lose!")
             break
         
         if player.score <= 21:
             print("It's your turn.")
             player_response = input("Would you like to stay(S), hit(H), or fold(F)?")
-
+            
+            clear()
+            
             if player_response == "F":
                 print("You have folded. Game Over")
                 break
@@ -203,7 +221,7 @@ def game_engine():
                 print("Here is another card.")
                 time.sleep(1)
                 player.get_card()
-                print_cards(player)
+                print_cards_fancy(player)
                 player.calculate_score()
                 print(f"\nYour score: {player.score}")
                 
@@ -227,8 +245,9 @@ def game_engine():
 
         elif dealer.score <= 16:
             print("The dealer is taking another card.")
+            time.sleep(1)
             dealer.get_card()
-            print_cards(dealer)
+            print_cards_fancy(dealer)
             print_showing_score(dealer)
             time.sleep(2)
         
@@ -237,7 +256,8 @@ def game_engine():
 
     # Game results
     time.sleep(1)
-    print("\nWe will now flip all cards over:")
+    input("\nPress Enter to flip all cards over")
+    clear()
     print_all_cards_and_scores(player)
     print_all_cards_and_scores(dealer)
 
@@ -264,9 +284,10 @@ if __name__ == '__main__':
     print(f"You are playing the {dealer.name}.")
 
     input("Press Enter to Continue")
+    clear()
 
     print("We will now deal 2 cards to each player.")
-    time.sleep(2)
+    time.sleep(1)
 
     # Deal 2 cards to player and dealer
     while len(dealer.cards) < 2:
@@ -277,10 +298,10 @@ if __name__ == '__main__':
         dealer.get_card()    
 
     time.sleep(1)
-    print_cards_fancy(player.cards, player.isDealer)
+    print_cards_fancy(player)
     print_showing_score(player)
     time.sleep(1)
-    print_cards_fancy(dealer.cards, dealer.isDealer)
+    print_cards_fancy(dealer)
     print_showing_score(dealer)
 
     game_engine()
