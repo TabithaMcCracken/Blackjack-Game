@@ -1,11 +1,25 @@
-# Blackjack game
-# The dealer acts as a player and is required to hit on 16, stay on 17
+"""
+Blackjack Game
+Basic Rules:
+-The player is playing against the dealer
+-The dealer and the player both get 2 cards initially, the first card is up and
+the second card is down
+-The player gets an opportunity to play (receive multiple cards) until they stay 
+or bust
+-The dealer then plays until the hit 17 or bust (They are required to hit on 16,
+stay on 17)
+-An Ace is worth 11 unless the hand has reached 22 or higher, then it chanes to 
+be a 1
+-If no one busts, the cards are flipped and the winner is determined
+"""
 
 import random
 import os
 import time
 
 class Card:
+    """Models a standard playing card."""
+
     def __init__(self, suit, rank, card_value):
         
         self.suit = suit # Suit of the Card like Spades and Clubs
@@ -16,6 +30,8 @@ class Card:
         return f"{self.rank} of {self.suit}"
 
 class Deck:
+    """Creates a standard deck of 52 cards."""
+
     def __init__(self) -> None:
         self.deck = []
         suit_name = [
@@ -109,18 +125,6 @@ class Player:
         self.cards.append(dealt_card)
         game_deck.deck.remove(dealt_card)
 
-def print_cards(player):
-    if player.isDealer == False:
-        print("==Your Cards==")
-        for card in player.cards:
-            print(card)
-        
-    else:
-        print("\n==Dealer's Cards==")
-        print("The first card is hidden.")
-        for card in player.cards[1:]:
-            print(card)
-
 CARD_SLICES = [
     " _________________",
     "|                 |",
@@ -152,35 +156,55 @@ HIDDEN_CARD_SLICES = [
 ]
 
 def print_cards_fancy(player_hand):
+    """Prints a players cards on the screen.
+
+    Args:
+        player_hand (class Player): player is either the dealer or not
+    """
     print(f"=={player_hand.name}'s Cards==")
     for card_slice, hidden_slice in zip(CARD_SLICES, HIDDEN_CARD_SLICES):
+
         if player_hand.isDealer:
             card_slices = "\t".join(
                 [   
-                        card_slice.format(rank = card.rank + (" " if len(card.rank) == 1 else ""), 
-                        suit = card.suit + "") for card in player_hand.cards[1:]
+                    card_slice.format(rank = card.rank + (" " if len(card.rank) == 1 else ""), 
+                    suit = card.suit + "") for card in player_hand.cards[1:]
 
                 ]
             )
             print(f"\t{hidden_slice}\t{card_slices}")
+
         else:
             card_slices = "\t".join(
                 [   
-                        card_slice.format(rank = card.rank + (" " if len(card.rank) == 1 else ""), 
-                        suit = card.suit + "") for card in player_hand.cards
+                    card_slice.format(rank = card.rank + (" " if len(card.rank) == 1 else ""), 
+                    suit = card.suit + "") for card in player_hand.cards
 
                 ]
             )
             print(f"\t{card_slices}\t{hidden_slice if player_hand.isDealer else ''}") # Still not sure what the second tab section is for
             
 def print_showing_score(player):
-        if player.isDealer == False:
-            print(f"\n{player.name}'s Score: {player.calculate_score()}\n")
-        else:
-            print(f"\nDealer's showing score: {player.calculate_score() - player.cards[0].card_value}\n")
+    """Prints scores, not including the dealers first card which is hidden.
+
+    Args:
+        player (class Player): player is either dealer or not
+    """
+    if player.isDealer == False:
+        print(f"\n{player.name}'s Score: {player.calculate_score()}\n")
+
+    else:
+        print(f"\nDealer's showing score: {player.calculate_score() - player.cards[0].card_value}\n")
 
 def print_all_cards_and_scores(player_hand):
+    """Prints all players cards and score
+
+    Args:
+        player_hand (class Player): player is either dealer or not
+    """
+
     print(f"=={player_hand.name}'s Cards==")
+
     for card_slice, hidden_slice in zip(CARD_SLICES, HIDDEN_CARD_SLICES):
         card_slices = "\t".join(
             [   
@@ -190,21 +214,27 @@ def print_all_cards_and_scores(player_hand):
             ]
         )
         print(f"\t{card_slices}\t")
+
     print(f"\n{player_hand.name}'s Final Score: {player_hand.calculate_score()}\n")
 
 def clear():
     os.system("clear")
 
 def game_engine():
+    """Allows player and dealer to play after setup. Then prints final cards and
+    determines winner.
+    """
+
     # Players turn
     while True:
+
         if dealer.score == 21:
             print("The dealer has hit 21! You lose!")
             break
         
         if player.score <= 21:
             print("It's your turn.")
-            player_response = input("Would you like to stay(S), hit(H), or fold(F)?")
+            player_response = input("Would you like to stay(S), hit(H), or fold(F)?").upper()
             
             clear()
             
@@ -212,12 +242,12 @@ def game_engine():
                 print("You have folded. Game Over")
                 break
 
-            if player_response == "S":
+            elif player_response == "S":
                 print("You have decided to stay.")
                 time.sleep(1)
                 break
 
-            if player_response == "H":
+            elif player_response == "H":
                 print("Here is another card.")
                 time.sleep(1)
                 player.get_card()
@@ -230,8 +260,12 @@ def game_engine():
                     print("You bust! Game Over!")
                     break
 
+            else:
+                print("Invalid response, let's try again.")
+
     # Dealers turn
     while True:
+
         if player_response == "F" or player.score > 21:
             break
         
@@ -264,12 +298,16 @@ def game_engine():
     # Determine winner
     if player.score > dealer.score and player.score <= 21:
         print("You win!")
+
     if dealer.score > player.score and dealer.score <=21:
         print("The dealer wins!")
+
     if dealer.score == player.score:
         print("It's a tie!")
 
 if __name__ == '__main__':
+    """"Initializes the game, runs and ends it."""
+
     # Setup    
     # Create deck
     print("Welcome to Blackjack!")
@@ -283,13 +321,13 @@ if __name__ == '__main__':
     print(f"Welcome {player.name}!")
     print(f"You are playing the {dealer.name}.")
 
+    # Deal 2 cards to player and dealer
     input("Press Enter to Continue")
     clear()
 
     print("We will now deal 2 cards to each player.")
     time.sleep(1)
 
-    # Deal 2 cards to player and dealer
     while len(dealer.cards) < 2:
         # Deal a card to the player, print cards and score
         player.get_card()
@@ -300,10 +338,12 @@ if __name__ == '__main__':
     time.sleep(1)
     print_cards_fancy(player)
     print_showing_score(player)
+    
     time.sleep(1)
     print_cards_fancy(dealer)
     print_showing_score(dealer)
 
+    # Run and end the game
     game_engine()
 
 
