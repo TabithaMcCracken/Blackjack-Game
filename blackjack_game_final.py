@@ -56,7 +56,7 @@ class Deck:
             'K'
         ]
         card_value = {
-            'A':11, 
+            'A':11,# Ace starts as an 11 and is changed to a 1 if hand goes over 21
             '2':2, 
             '3':3, 
             '4':4, 
@@ -70,7 +70,7 @@ class Deck:
             'Q':10, 
             'K':10
         } 
-        # Ace starts as an 11 and is changed to a 1 if hand goes over 21
+        
 
         for suit in suit_name:
             for rank in rank_name:
@@ -88,8 +88,8 @@ class Deck:
         return f"Deck: \n{self.deck}"
 
 class Player:
-    """Creates a player which could be the dealer
-    """
+    """Creates a player which could be the dealer."""
+
     def __init__(self, name, isDealer) -> None:
         self.name = name
         self.isDealer = isDealer
@@ -197,7 +197,7 @@ def print_showing_score(player):
         print(f"\nDealer's showing score: {player.calculate_score() - player.cards[0].card_value}\n")
 
 def print_all_cards_and_scores(player_hand):
-    """Prints all players cards and score
+    """Prints all player cards and score
 
     Args:
         player_hand (class Player): player is either dealer or not
@@ -338,7 +338,7 @@ if __name__ == '__main__':
     time.sleep(1)
     print_cards_fancy(player)
     print_showing_score(player)
-    
+
     time.sleep(1)
     print_cards_fancy(dealer)
     print_showing_score(dealer)
